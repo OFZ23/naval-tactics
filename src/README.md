@@ -81,213 +81,265 @@ src/
 
 ## 📐 Diagrama de Casos de Uso
 
-```mermaid
-flowchart TD
-    Jugador(["👤 Jugador"])
-    PC(["🤖 PC (IA)"])
-    Sistema(["⚙️ Sistema"])
+```plantuml
+@startuml CasosDeUso_BatallaNaval
 
-    Jugador --> UC1["Iniciar nueva partida"]
-    Jugador --> UC2["Seleccionar dificultad"]
-    Jugador --> UC3["Colocar barcos manualmente"]
-    Jugador --> UC4["Colocar barcos automáticamente"]
-    Jugador --> UC5["Rotar barco (tecla R)"]
-    Jugador --> UC6["Limpiar tablero"]
-    Jugador --> UC7["Iniciar batalla"]
-    Jugador --> UC8["Disparar al tablero enemigo"]
-    Jugador --> UC9["Ver registro de batalla"]
-    Jugador --> UC10["Ver estadísticas finales"]
-    Jugador --> UC11["Ver mejores partidas"]
-    Jugador --> UC12["Reiniciar / Volver al inicio"]
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
 
-    PC --> UC13["Disparar al tablero del jugador"]
-    PC --> UC14["Modo caza: disparo aleatorio"]
-    PC --> UC15["Modo objetivo: disparar adyacente"]
-    PC --> UC16["Modo difícil: detectar dirección"]
+actor "Jugador" as Jugador
+actor "PC (IA)" as PC
+actor "Sistema" as Sistema
 
-    Sistema --> UC17["Validar colocación de barco"]
-    Sistema --> UC18["Controlar temporizador de turno"]
-    Sistema --> UC19["Detectar barco hundido"]
-    Sistema --> UC20["Verificar condición de victoria"]
-    Sistema --> UC21["Guardar puntuación en localStorage"]
+rectangle "Batalla Naval" {
 
-    UC1 --> UC17
-    UC7 --> UC18
-    UC8 --> UC19
-    UC13 --> UC19
-    UC19 --> UC20
-    UC20 --> UC21
+  usecase "Iniciar nueva partida"           as UC1
+  usecase "Seleccionar dificultad"          as UC2
+  usecase "Colocar barcos manualmente"      as UC3
+  usecase "Colocar barcos automáticamente"  as UC4
+  usecase "Rotar barco (tecla R)"           as UC5
+  usecase "Limpiar tablero"                 as UC6
+  usecase "Iniciar batalla"                 as UC7
+  usecase "Disparar al tablero enemigo"     as UC8
+  usecase "Ver registro de batalla"         as UC9
+  usecase "Ver estadísticas finales"        as UC10
+  usecase "Ver mejores partidas"            as UC11
+  usecase "Reiniciar / Volver al inicio"    as UC12
 
-    UC13 -.->|Fácil| UC14
-    UC13 -.->|Normal| UC15
-    UC13 -.->|Difícil| UC16
+  usecase "Disparar al tablero del jugador" as UC13
+  usecase "Modo caza: disparo aleatorio"    as UC14
+  usecase "Modo objetivo: adyacente"        as UC15
+  usecase "Modo difícil: detectar dirección" as UC16
+
+  usecase "Validar colocación de barco"     as UC17
+  usecase "Controlar temporizador de turno" as UC18
+  usecase "Detectar barco hundido"          as UC19
+  usecase "Verificar condición de victoria" as UC20
+  usecase "Guardar puntuación"              as UC21
+
+}
+
+Jugador --> UC1
+Jugador --> UC2
+Jugador --> UC3
+Jugador --> UC4
+Jugador --> UC5
+Jugador --> UC6
+Jugador --> UC7
+Jugador --> UC8
+Jugador --> UC9
+Jugador --> UC10
+Jugador --> UC11
+Jugador --> UC12
+
+PC --> UC13
+
+Sistema --> UC17
+Sistema --> UC18
+Sistema --> UC19
+Sistema --> UC20
+Sistema --> UC21
+
+UC3 ..> UC17 : <<include>>
+UC7  ..> UC18 : <<include>>
+UC8  ..> UC19 : <<include>>
+UC13 ..> UC19 : <<include>>
+UC19 ..> UC20 : <<include>>
+UC20 ..> UC21 : <<include>>
+
+UC13 ..> UC14 : <<extend>>\nFácil
+UC13 ..> UC15 : <<extend>>\nNormal
+UC13 ..> UC16 : <<extend>>\nDifícil
+
+@enduml
 ```
 
 ---
 
 ## 🏗️ Diagrama de Clases
 
-```mermaid
-classDiagram
-    direction TB
+```plantuml
+@startuml Clases_BatallaNaval
 
-    class BattleShip {
-        +phase: PHASES
-        +difficulty: string
-        +playerBoard: Cell[][]
-        +pcBoard: Cell[][]
-        +turn: string
-        +turnCount: number
-        +timeLeft: number
-        +messages: Message[]
-        +aiMemory: AIMemory
-        +handleStart(diff)
-        +handlePlaceShip(row, col)
-        +handlePlayerShot(row, col)
-        +handleAutoPlace()
-        +handleStartBattle()
-        +handleRestart()
-        +handleHome()
-    }
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
 
-    class Cell {
-        +state: CELL_STATE
-        +shipId: string
-    }
+class BattleShip {
+  - phase : PHASES
+  - difficulty : string
+  - playerBoard : Cell[][]
+  - pcBoard : Cell[][]
+  - turn : string
+  - turnCount : number
+  - timeLeft : number
+  - messages : Message[]
+  - aiMemory : AIMemory
+  + handleStart(diff : string) : void
+  + handlePlaceShip(row : number, col : number) : void
+  + handlePlayerShot(row : number, col : number) : void
+  + handleAutoPlace() : void
+  + handleStartBattle() : void
+  + handleRestart() : void
+  + handleHome() : void
+}
 
-    class AIMemory {
-        +hits: Coordinate[]
-    }
+class Cell {
+  + state : CELL_STATE
+  + shipId : string
+}
 
-    class Coordinate {
-        +r: number
-        +c: number
-    }
+class AIMemory {
+  + hits : Coordinate[]
+}
 
-    class ShipDef {
-        +id: string
-        +name: string
-        +size: number
-        +count: number
-        +color: string
-        +emoji: string
-    }
+class Coordinate {
+  + r : number
+  + c : number
+}
 
-    class Message {
-        +text: string
-        +type: string
-    }
+class ShipDef {
+  + id : string
+  + name : string
+  + size : number
+  + count : number
+  + color : string
+  + emoji : string
+}
 
-    class gameLogic {
-        +createEmptyBoard() Cell[][]
-        +canPlaceShip(board, row, col, size, horizontal) boolean
-        +placeShip(board, row, col, size, horizontal, shipId) Cell[][]
-        +fireAt(board, row, col) FireResult
-        +allShipsSunk(board) boolean
-        +autoPlaceShips(board) Cell[][]
-        +getAIShot(board, difficulty, aiMemory) Coordinate
-        +markSunk(board, shipId) Cell[][]
-        +isShipSunk(board, shipId) boolean
-        +getAccuracy(shots, hits) number
-        +getShipDef(shipId) ShipDef
-    }
+class Message {
+  + text : string
+  + type : string
+}
 
-    class scoreManager {
-        +getTopScores() Score[]
-        +saveScore(entry) Score[]
-    }
+class gameLogic {
+  + createEmptyBoard() : Cell[][]
+  + canPlaceShip(board, row, col, size, horizontal) : boolean
+  + placeShip(board, row, col, size, horizontal, shipId) : Cell[][]
+  + fireAt(board, row, col) : FireResult
+  + allShipsSunk(board) : boolean
+  + autoPlaceShips(board) : Cell[][]
+  + getAIShot(board, difficulty, aiMemory) : Coordinate
+  + markSunk(board, shipId) : Cell[][]
+  + isShipSunk(board, shipId) : boolean
+  + getAccuracy(shots, hits) : number
+  + countHits(board) : number
+  + countSunkShips(board) : number
+}
 
-    class Score {
-        +difficulty: string
-        +turns: number
-        +accuracy: number
-        +won: boolean
-        +date: string
-    }
+class scoreManager {
+  + getTopScores() : Score[]
+  + saveScore(entry) : Score[]
+}
 
-    class gameConstants {
-        +BOARD_SIZE: number
-        +COLS: string[]
-        +PHASES: object
-        +CELL: object
-        +DIFFICULTY: object
-        +SHIP_DEFS: ShipDef[]
-        +TOTAL_SHIP_CELLS: number
-        +TURN_TIME: number
-    }
+class Score {
+  + difficulty : string
+  + turns : number
+  + accuracy : number
+  + won : boolean
+  + date : string
+}
 
-    class Board {
-        +board: Cell[][]
-        +title: string
-        +isPlayerBoard: boolean
-        +previewCells: Coordinate[]
-        +onCellClick(row, col)
-        +onCellHover(row, col)
-    }
+class gameConstants {
+  + BOARD_SIZE : number
+  + COLS : string[]
+  + PHASES : object
+  + CELL : object
+  + DIFFICULTY : object
+  + SHIP_DEFS : ShipDef[]
+  + TOTAL_SHIP_CELLS : number
+  + TURN_TIME : number
+}
 
-    class BoardCell {
-        +cell: Cell
-        +row: number
-        +col: number
-        +isPreview: boolean
-        +isInvalidPreview: boolean
-        +onClick()
-        +onMouseEnter()
-    }
+class Board {
+  + board : Cell[][]
+  + title : string
+  + isPlayerBoard : boolean
+  + previewCells : Coordinate[]
+  + onCellClick(row, col) : void
+  + onCellHover(row, col) : void
+  + onCellLeave() : void
+}
 
-    class ShipSelector {
-        +selectedShip: ShipDef
-        +placedCounts: object
-        +horizontal: boolean
-        +onSelectShip(ship)
-        +onToggleOrientation()
-        +onAutoPlace()
-        +onClearBoard()
-    }
+class BoardCell {
+  + cell : Cell
+  + row : number
+  + col : number
+  + isPreview : boolean
+  + isInvalidPreview : boolean
+  + onClick() : void
+  + onMouseEnter() : void
+}
 
-    class GameHUD {
-        +playerBoard: Cell[][]
-        +pcBoard: Cell[][]
-        +turn: string
-        +turnCount: number
-        +timeLeft: number
-    }
+class ShipSelector {
+  + selectedShip : ShipDef
+  + placedCounts : object
+  + horizontal : boolean
+  + onSelectShip(ship) : void
+  + onToggleOrientation() : void
+  + onAutoPlace() : void
+  + onClearBoard() : void
+}
 
-    class MessageLog {
-        +messages: Message[]
-    }
+class GameHUD {
+  + playerBoard : Cell[][]
+  + pcBoard : Cell[][]
+  + turn : string
+  + turnCount : number
+  + timeLeft : number
+  + playerShots : number
+  + playerHits : number
+}
 
-    class WelcomeScreen {
-        +onStart(difficulty)
-    }
+class MessageLog {
+  + messages : Message[]
+}
 
-    class GameOverModal {
-        +open: boolean
-        +winner: string
-        +turnCount: number
-        +playerShots: number
-        +playerHits: number
-        +onRestart()
-        +onHome()
-    }
+class WelcomeScreen {
+  + onStart(difficulty : string) : void
+}
 
-    BattleShip "1" --> "2" Board : renders
-    BattleShip "1" --> "1" ShipSelector : renders
-    BattleShip "1" --> "1" GameHUD : renders
-    BattleShip "1" --> "1" MessageLog : renders
-    BattleShip "1" --> "1" GameOverModal : renders
-    BattleShip "1" --> "1" WelcomeScreen : renders
-    BattleShip ..> gameLogic : uses
-    BattleShip ..> scoreManager : uses
-    BattleShip ..> gameConstants : uses
-    Board "1" --> "100" BoardCell : renders
-    Board ..> Cell : uses
-    gameLogic ..> Cell : creates/modifies
-    gameLogic ..> ShipDef : reads
-    gameLogic ..> AIMemory : reads
-    scoreManager ..> Score : manages
-    AIMemory "1" --> "*" Coordinate : contains
-    Cell --> ShipDef : references via shipId
+class GameOverModal {
+  + open : boolean
+  + winner : string
+  + turnCount : number
+  + playerShots : number
+  + playerHits : number
+  + onRestart() : void
+  + onHome() : void
+}
+
+' Composición principal
+BattleShip "1" *-- "2" Board           : renders
+BattleShip "1" *-- "1" ShipSelector    : renders
+BattleShip "1" *-- "1" GameHUD         : renders
+BattleShip "1" *-- "1" MessageLog      : renders
+BattleShip "1" *-- "1" GameOverModal   : renders
+BattleShip "1" *-- "1" WelcomeScreen   : renders
+
+' Dependencias de lógica
+BattleShip ..> gameLogic     : <<uses>>
+BattleShip ..> scoreManager  : <<uses>>
+BattleShip ..> gameConstants : <<uses>>
+
+' Composición de tablero
+Board "1" *-- "100" BoardCell : renders
+Board ..> Cell                : <<uses>>
+
+' Dependencias de lógica de juego
+gameLogic ..> Cell       : creates / modifies
+gameLogic ..> ShipDef    : reads
+gameLogic ..> AIMemory   : reads
+gameLogic ..> gameConstants : <<uses>>
+
+' Gestión de puntuaciones
+scoreManager "1" *-- "*" Score : manages
+
+' Datos internos
+AIMemory "1" *-- "*" Coordinate : contains
+Cell ..> ShipDef                : references via shipId
+
+@enduml
 ```
 
 ---
