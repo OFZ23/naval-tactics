@@ -79,6 +79,3 @@ src/
 
 ---
 
-## 📜 Licencia
-
-MIT
